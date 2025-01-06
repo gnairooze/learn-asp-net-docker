@@ -1,3 +1,9 @@
+networks:
+  webapi-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.20.0.0/24
 services:
   webapi-sql:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -10,6 +16,9 @@ services:
     env_file: "default.env"
     ports:
       - "14334:1433"
+    networks:
+      webapi-net:
+        ipv4_address: 10.20.0.2
     volumes:
       - ./src/webapi-sql/data:/var/opt/mssql/data
       - ./src/webapi-sql/log:/var/opt/mssql/log
@@ -17,11 +26,15 @@ services:
 
   web:
     image: mywebapiapp
+    container_name: webapi-api
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "5052:5052"
+    networks:
+      webapi-net:
+        ipv4_address: 10.20.0.3
     volumes:
       - .:/MyWebApiApp
       - app:/app
