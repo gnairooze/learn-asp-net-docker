@@ -1,4 +1,20 @@
 services:
+  webapi-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: webapi-sql
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+    env_file: "default.env"
+    ports:
+      - "14334:1433"
+    volumes:
+      - ./src/webapi-sql/data:/var/opt/mssql/data
+      - ./src/webapi-sql/log:/var/opt/mssql/log
+      - ./src/webapi-sql/secrets:/var/opt/mssql/secrets
+
   web:
     image: mywebapiapp
     build:
@@ -9,5 +25,8 @@ services:
     volumes:
       - .:/MyWebApiApp
       - app:/app
+    depends_on:
+      - webapi-sql
+    
 volumes:
   app:
